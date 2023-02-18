@@ -36,26 +36,6 @@ var roleEditorContainer = '.e2e-test-roles-editor-card-container';
 var addNewRoleButton = '.e2e-test-add-new-role-button';
 var roleSelect = '.e2e-test-new-role-selector';
 
-module.exports = async(browser, context) => {
-  const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(0);
-  // Sign into Oppia.
-  await login(context, page);
-  if (context.url.includes('moderator')) {
-    await setRole(page, 'MODERATOR');
-  } else if (context.url.includes('emaildashboard')) {
-    await setRole(page, 'ADMIN');
-  } else if (context.url.includes('collection/0')) {
-    await createCollections(context, page);
-  } else if (context.url.includes('explore/0')) {
-    await createExplorations(context, page);
-  } else if (context.url.includes('blog-dashboard')) {
-    await setRole(page, 'BLOG_ADMIN');
-  }
-  await page.close();
-};
-
-// Needed to relogin after lighthouse_setup.js.
 const login = async function(context, page) {
   try {
     // eslint-disable-next-line dot-notation
@@ -84,6 +64,25 @@ const login = async function(context, page) {
   }
 };
 
+module.exports = async(browser, context) => {
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(0);
+  // Sign into Oppia.
+  await login(context, page);
+  if (context.url.includes('moderator')) {
+    await setRole(page, 'MODERATOR');
+  } else if (context.url.includes('emaildashboard')) {
+    await setRole(page, 'ADMIN');
+  } else if (context.url.includes('collection/0')) {
+    await createCollections(context, page);
+  } else if (context.url.includes('explore/0')) {
+    await createExplorations(context, page);
+  } else if (context.url.includes('blog-dashboard')) {
+    await setRole(page, 'BLOG_ADMIN');
+  }
+  await page.close();
+};
+
 const setRole = async function(page, role) {
   try {
     // eslint-disable-next-line dot-notation
@@ -99,51 +98,4 @@ const setRole = async function(page, role) {
     await page.click(addNewRoleButton);
 
     await page.click(roleSelect);
-    var selector = `mat-option[ng-reflect-value="${role}"]`;
-    await page.click(selector);
-    await page.waitForTimeout(2000);
-    // eslint-disable-next-line dot-notation
-    await page.goto(CREATOR_DASHBOARD_URL, { waitUntil: networkIdle});
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
-  }
-};
-
-const createCollections = async function(context, page) {
-  try {
-    // eslint-disable-next-line no-console
-    console.log('Creating Collections...');
-    await setRole(page, 'COLLECTION_EDITOR');
-    // Load in Collection
-    // eslint-disable-next-line dot-notation
-    await page.goto('http://127.0.0.1:8181/admin');
-    await page.waitForTimeout(2000);
-    await page.evaluate('window.confirm = () => true');
-    await page.click('#reload-collection-button-id');
-    // eslint-disable-next-line no-console
-    console.log('Collections Created');
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
-  }
-};
-
-const createExplorations = async function(context, page) {
-  try {
-    // eslint-disable-next-line no-console
-    console.log('Creating Exploration...');
-    // Load in Exploration
-    // eslint-disable-next-line dot-notation
-    await page.goto('http://127.0.0.1:8181/admin', { waitUntil: 'networkidle0' });
-    await page.waitForTimeout(2000);
-    await page.evaluate('window.confirm = () => true');
-    await page.click(
-      '.e2e-test-reload-exploration-button');
-    // eslint-disable-next-line no-console
-    console.log('Exploration Created');
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
-  }
-};
+   
